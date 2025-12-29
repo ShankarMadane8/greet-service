@@ -17,4 +17,19 @@ public class KafkaConsumerService {
                         @Header(KafkaHeaders.OFFSET) long offset) {
         log.info("Kafka Event: [Topic={}, Partition={}, Offset={}] -> Payload={}", topic, partition, offset, message);
     }
+
+    @KafkaListener(
+            topics = "student-visits",
+            groupId = "greet-group",
+            containerFactory = "studentKafkaListenerContainerFactory"
+    )
+    public void consumeStudent(
+            Student student,
+            @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
+            @Header(KafkaHeaders.RECEIVED_PARTITION) int partition,
+            @Header(KafkaHeaders.OFFSET) long offset) {
+
+        log.info("Kafka Event: [Topic={}, Partition={}, Offset={}] -> Payload={}", topic, partition, offset, student);
+
+    }
 }
