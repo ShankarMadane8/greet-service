@@ -6,6 +6,7 @@ import java.util.Map;
 import com.example.greetservice.entity.Student;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
@@ -19,6 +20,8 @@ import org.springframework.util.backoff.FixedBackOff;
 @Configuration
 public class KafkaConsumerConfig {
 
+        @Value("${kafka.bootstrap-servers}")
+        private String bootstrapServers ;
         @Bean
         public ConsumerFactory<String, Student> studentConsumerFactory() {
 
@@ -30,7 +33,7 @@ public class KafkaConsumerConfig {
                 jsonDeserializer.setRemoveTypeHeaders(true);
 
                 Map<String, Object> props = new HashMap<>();
-                props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+                props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,bootstrapServers);
                 props.put(ConsumerConfig.GROUP_ID_CONFIG, "greet-group");
 
                 // 🔑 ErrorHandlingDeserializer
