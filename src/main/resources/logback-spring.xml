@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true">
+
+    <!-- ================= CONTEXT PROPERTIES ================= -->
+    <springProperty scope="context" name="APP_NAME"
+                    source="spring.application.name"
+                    defaultValue="unknown-service"/>
+
+    <springProperty scope="context" name="ENV"
+                    source="spring.profiles.active"
+                    defaultValue="local"/>
+
+    <!-- ================= JSON CONSOLE APPENDER ================= -->
+    <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <includeContext>true</includeContext>
+
+            <customFields>
+                {
+                "service":"${APP_NAME}",
+                "environment":"${ENV}"
+                }
+            </customFields>
+        </encoder>
+    </appender>
+
+    <!-- ================= LOGSTASH APPENDER ================= -->
+    <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+        <destination>localhost:5044</destination>
+
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <includeContext>true</includeContext>
+
+            <customFields>
+                {
+                "service":"${APP_NAME}",
+                "environment":"${ENV}"
+                }
+            </customFields>
+        </encoder>
+
+        <!-- Reconnect automatically -->
+        <reconnectionDelay>5000</reconnectionDelay>
+    </appender>
+
+    <!-- ================= ASYNC APPENDERS ================= -->
+    <appender name="ASYNC_CONSOLE" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>5000</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <neverBlock>true</neverBlock>
+        <appender-ref ref="JSON_CONSOLE"/>
+    </appender>
+
+    <appender name="ASYNC_LOGSTASH" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>5000</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <neverBlock>true</neverBlock>
+        <appender-ref ref="LOGSTASH"/>
+    </appender>
+
+    <!-- ================= LOG LEVEL CONTROL ================= -->
+    <root level="INFO">
+        <appender-ref ref="ASYNC_CONSOLE"/>
+        <appender-ref ref="ASYNC_LOGSTASH"/>
+    </root>
+
+    <!-- Reduce framework noise -->
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="org.hibernate" level="WARN"/>
+    <logger name="org.apache.kafka" level="WARN"/>
+
+</configuration>

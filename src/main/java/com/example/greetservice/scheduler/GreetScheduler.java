@@ -18,7 +18,7 @@ public class GreetScheduler {
 
     private final StudentRepository studentRepository;
 
-    @Scheduled(fixedRate = 10000) // Run every 10 seconds
+//    @Scheduled(fixedRate = 10000) // Run every 10 seconds
     @SchedulerLock(name = "GreetScheduler_scheduledTask", lockAtLeastFor = "PT5S", lockAtMostFor = "PT9S")
     public void scheduledTask() {
         log.info("Distributed task executed by this instance at: " + LocalDateTime.now());
